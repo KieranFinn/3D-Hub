@@ -1,5 +1,7 @@
 # 3D Hub
 
+**English** | [简体中文](./README.zh-CN.md)
+
 > AI-powered character creation studio for generating, refining, and exporting 3D personas.
 
 ## Overview
