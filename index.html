@@ -3,23 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Hub - 角色创建实验室</title>
+    <title>3D Hub - AI Character Creation Studio</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
         <div id="canvas-container">
             <div class="loading" id="loading">加载中...</div>
+            
+            <!-- 状态浮层 -->
+            <div class="status-overlay">
+                <div class="status-item">
+                    <span class="status-dot active"></span>
+                    <span>模型就绪</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot"></span>
+                    <span>预设: 基础</span>
+                </div>
+            </div>
+            
+            <!-- 角落提示 -->
+            <div class="canvas-hint">
+                Drag to rotate · Scroll to zoom
+            </div>
         </div>
         
         <div class="controls">
-            <h1>🎮 3D Hub</h1>
-            <p class="subtitle">AI 角色创建实验室</p>
+            <!-- 标题区 -->
+            <div class="header">
+                <h1>3D Hub</h1>
+                <p class="subtitle">AI CHARACTER CREATION STUDIO</p>
+            </div>
             
             <!-- 文本描述输入 -->
             <div class="prompt-section">
                 <h3>📝 角色描述</h3>
-                <textarea id="characterPrompt" placeholder="描述角色特征，如：少年感、可爱、冷酷..."></textarea>
+                <textarea id="characterPrompt" placeholder="描述你的角色，如：少年感、银发、冷酷五官..."></textarea>
                 <button class="generate-btn" id="generateBtn">✨ 应用描述</button>
             </div>
             
@@ -91,12 +111,12 @@
             
             <!-- 操作按钮 -->
             <div class="action-buttons">
-                <button class="action-btn save-btn" id="saveBtn">💾 保存配置</button>
+                <button class="action-btn save-btn" id="saveBtn">💾 保存</button>
                 <button class="action-btn reset-btn" id="resetBtn">🔄 重置</button>
             </div>
             
             <div class="status-bar">
-                v1.1 - 模块化架构 | 文本描述功能已就绪
+                v1.2 - Cyber Studio Theme
             </div>
         </div>
     </div>
