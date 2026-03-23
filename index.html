@@ -7,108 +7,175 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="app">
-        <!-- ========== 左侧：主舞台 ========== -->
-        <div class="stage">
-            <!-- 舞台状态块 -->
-            <div class="stage-status">
-                <div class="status-brand">
-                    <h1>3D Hub</h1>
-                    <span class="status-mode">AI Character Studio</span>
-                </div>
-                <div class="status-info">
-                    <span class="status-dot active"></span>
-                    <span>Ready</span>
-                </div>
-            </div>
-            
-            <!-- 3D Canvas -->
-            <div class="stage-canvas" id="canvas-container">
-                <div class="loading" id="loading">初始化中...</div>
-            </div>
-            
-            <!-- 舞台底部提示 -->
-            <div class="stage-footer">
-                <span>✦ Drag to rotate</span>
-                <span class="divider">|</span>
-                <span>✦ Scroll to zoom</span>
-            </div>
-            
-            <!-- ========== 悬浮控制台（覆盖在舞台上）========== -->
-            <div class="floating-console">
-                <!-- 控制台头部 -->
-                <div class="console-head">
-                    <span class="section-label">CREATE</span>
-                </div>
-                
-                <!-- 1. 描述输入 -->
-                <div class="console-block">
-                    <div class="block-label">
-                        <span class="num">01</span>
-                        <span>描述</span>
-                    </div>
-                    <textarea id="characterPrompt" placeholder="描述你的角色，如：少年感，银发..."></textarea>
-                    <button class="btn-primary" id="generateBtn">✨ 应用描述</button>
-                </div>
-                
-                <!-- 2. 风格预设 -->
-                <div class="console-block">
-                    <div class="block-label">
-                        <span class="num">02</span>
-                        <span>风格</span>
-                    </div>
-                    <div class="preset-row">
-                        <button class="preset-btn" data-preset="young">少年感</button>
-                        <button class="preset-btn" data-preset="mature">成熟感</button>
-                        <button class="preset-btn" data-preset="cute">可爱</button>
-                        <button class="preset-btn" data-preset="cool">冷艳</button>
-                    </div>
-                </div>
-                
-                <!-- 3. 细节调节 -->
-                <div class="console-block sliders-block">
-                    <div class="block-label">
-                        <span class="num">03</span>
-                        <span>调节</span>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <div class="slider-item">
-                            <span>眼睛</span>
-                            <input type="range" id="eyeSize" min="0.5" max="2.5" step="0.1" value="1.0">
-                        </div>
-                        <div class="slider-item">
-                            <span>间距</span>
-                            <input type="range" id="eyeSpacing" min="0.5" max="1.5" step="0.1" value="1.0">
-                        </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <div class="slider-item">
-                            <span>鼻子</span>
-                            <input type="range" id="noseSize" min="0.5" max="2.0" step="0.1" value="1.0">
-                        </div>
-                        <div class="slider-item">
-                            <span>嘴巴</span>
-                            <input type="range" id="mouthWidth" min="0.5" max="2.0" step="0.1" value="1.0">
-                        </div>
-                    </div>
-                    
-                    <div class="slider-group">
-                        <div class="slider-item">
-                            <span>头部</span>
-                            <input type="range" id="headSize" min="0.8" max="1.5" step="0.1" value="1.0">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 4. 操作按钮 -->
-                <div class="console-actions">
-                    <button class="btn-action" id="saveBtn">💾 保存</button>
-                    <button class="btn-action secondary" id="resetBtn">🔄 重置</button>
-                </div>
-            </div>
+    <div class="app-shell">
+        
+        <!-- 背景氛围层 -->
+        <div class="bg-layer">
+            <div class="bg-gradient"></div>
+            <div class="bg-grid"></div>
+            <div class="bg-glow bg-glow-purple"></div>
+            <div class="bg-glow bg-glow-cyan"></div>
         </div>
+        
+        <!-- 顶部轻 Header -->
+        <header class="top-header">
+            <div class="brand-block">
+                <h1 class="brand-title">3D Hub</h1>
+                <p class="brand-subtitle">AI Character Creation Studio</p>
+            </div>
+            <div class="header-status">
+                <span class="status-chip">Prototype</span>
+                <span class="status-chip">Model Ready</span>
+            </div>
+        </header>
+        
+        <!-- 主舞台区域 -->
+        <main class="stage-shell">
+            
+            <!-- 左上状态卡 -->
+            <aside class="floating-card stage-status-card">
+                <div class="card-label">CURRENT SESSION</div>
+                <div class="status-row">
+                    <span class="status-key">Style</span>
+                    <span class="status-value">Neon Void</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-key">Preset</span>
+                    <span class="status-value">Cyber Minimal</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-key">Status</span>
+                    <span class="status-value online">Draft</span>
+                </div>
+            </aside>
+            
+            <!-- 中央角色舞台 -->
+            <section class="character-stage">
+                <div class="stage-light stage-light-top"></div>
+                <div class="stage-light stage-light-core"></div>
+                
+                <div class="character-focus">
+                    <div class="character-canvas-wrap">
+                        <div id="canvas-container">
+                            <div class="character-loading">Loading Character...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-platform"></div>
+                </div>
+            </section>
+            
+            <!-- 右侧悬浮控制台 -->
+            <aside class="floating-panel control-console">
+                
+                <!-- 控制台头部 -->
+                <div class="console-header">
+                    <h2>Create Your Character</h2>
+                    <p>Describe, refine and export your 3D persona.</p>
+                </div>
+                
+                <!-- 文本描述输入区 -->
+                <section class="console-section prompt-section">
+                    <div class="section-title-row">
+                        <h3>Character Prompt</h3>
+                        <span class="mini-tag">AI Input</span>
+                    </div>
+                    <textarea id="characterPrompt" class="prompt-input" placeholder="Describe your ideal character..."></textarea>
+                    <button class="primary-btn" id="generateBtn">Apply Description</button>
+                </section>
+                
+                <!-- 风格预设区 -->
+                <section class="console-section preset-section">
+                    <div class="section-title-row">
+                        <h3>Style Presets</h3>
+                        <span class="mini-tag">Quick Start</span>
+                    </div>
+                    <div class="preset-grid">
+                        <button class="preset-chip active">Cyber Minimal</button>
+                        <button class="preset-chip">Neon Rebel</button>
+                        <button class="preset-chip">Soft Android</button>
+                        <button class="preset-chip">Urban Hunter</button>
+                        <button class="preset-chip">Doll Print</button>
+                    </div>
+                </section>
+                
+                <!-- 基础调节区 -->
+                <section class="console-section controls-section">
+                    <div class="section-title-row">
+                        <h3>Core Adjustments</h3>
+                        <span class="mini-tag">Base</span>
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-row">
+                            <div class="slider-label">
+                                <span>Head Size</span>
+                                <span class="value-badge">1.0x</span>
+                            </div>
+                            <input type="range" id="headSize" min="0.8" max="1.5" step="0.1" value="1.0" />
+                        </div>
+                        <div class="slider-row">
+                            <div class="slider-label">
+                                <span>Face Balance</span>
+                                <span class="value-badge">1.0x</span>
+                            </div>
+                            <input type="range" id="faceBalance" min="0.5" max="1.5" step="0.1" value="1.0" />
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 细节调节区 -->
+                <section class="console-section detail-section">
+                    <div class="section-title-row">
+                        <h3>Facial Details</h3>
+                        <span class="mini-tag">Fine Tune</span>
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-row">
+                            <div class="slider-label">
+                                <span>Eye Size</span>
+                                <span class="value-badge">1.0x</span>
+                            </div>
+                            <input type="range" id="eyeSize" min="0.5" max="2.5" step="0.1" value="1.0" />
+                        </div>
+                        <div class="slider-row">
+                            <div class="slider-label">
+                                <span>Eye Spacing</span>
+                                <span class="value-badge">1.0x</span>
+                            </div>
+                            <input type="range" id="eyeSpacing" min="0.5" max="1.5" step="0.1" value="1.0" />
+                        </div>
+                        <div class="slider-row">
+                            <div class="slider-label">
+                                <span>Nose Size</span>
+                                <span class="value-badge">1.0x</span>
+                            </div>
+                            <input type="range" id="noseSize" min="0.5" max="2.0" step="0.1" value="1.0" />
+                        </div>
+                        <div class="slider-row">
+                            <div class="slider-label">
+                                <span>Mouth Width</span>
+                                <span class="value-badge">1.0x</span>
+                            </div>
+                            <input type="range" id="mouthWidth" min="0.5" max="2.0" step="0.1" value="1.0" />
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 操作区 -->
+                <section class="console-section action-section">
+                    <div class="section-title-row">
+                        <h3>Actions</h3>
+                    </div>
+                    <div class="action-row">
+                        <button class="action-btn" id="saveBtn">💾 Save</button>
+                        <button class="action-btn secondary" id="resetBtn">🔄 Reset</button>
+                    </div>
+                </section>
+                
+            </aside>
+            
+        </main>
+        
     </div>
     
     <!-- Three.js -->
