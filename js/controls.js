@@ -6,8 +6,7 @@ import {
     getCharacterRef, 
     subscribeToChanges,
     updateCharacterState,
-    exportCharacterConfig,
-    importCharacterConfig
+    exportCharacterConfig
 } from './state.js';
 import { applyCharacterConfig } from './character.js';
 
@@ -67,10 +66,7 @@ function bindSliderEvents() {
             updateCharacterState(state);
             
             // 同步显示值
-            const valueDisplay = document.getElementById(`${id}Value`);
-            if (valueDisplay) {
-                valueDisplay.textContent = value.toFixed(1) + 'x';
-            }
+            syncSlider(id, value);
         });
     });
 }
@@ -128,8 +124,8 @@ function bindPresetEvents() {
 function applyPresetByName(name) {
     const presets = {
         'young': {
-            face: { size: 1.1 },
-            eyes: { size: 1.2, spacing: 1.0 },
+            face: { size: 1.15 },
+            eyes: { size: 1.25, spacing: 0.95 },
             nose: { size: 0.9 },
             mouth: { width: 0.8 }
         },
@@ -140,14 +136,14 @@ function applyPresetByName(name) {
             mouth: { width: 1.0 }
         },
         'cute': {
-            face: { size: 1.2 },
-            eyes: { size: 1.4, spacing: 0.9 },
+            face: { size: 1.25 },
+            eyes: { size: 1.4, spacing: 0.85 },
             nose: { size: 0.8 },
             mouth: { width: 1.2 }
         },
         'cool': {
             face: { size: 0.95 },
-            eyes: { size: 0.85, spacing: 1.2 },
+            eyes: { size: 0.8, spacing: 1.2 },
             nose: { size: 1.0 },
             mouth: { width: 0.7 }
         }
@@ -185,7 +181,6 @@ function handleGenerate() {
     }
     
     if (!matched) {
-        // 默认应用"可爱"预设作为示例
         updateCharacterState(textMappings['可爱']);
     }
 }
@@ -234,7 +229,7 @@ function syncUIFromState(state) {
  */
 function syncSlider(id, value) {
     const slider = document.getElementById(id);
-    const valueDisplay = document.getElementById(`${id}Value`);
+    const valueDisplay = slider?.parentElement?.querySelector('.slider-value');
     
     if (slider) {
         slider.value = value;
