@@ -1,0 +1,56 @@
+{
+    "presets": [
+        {
+            "id": "young",
+            "name": "少年感",
+            "description": "大眼睛、小脸、可爱",
+            "config": {
+                "face": { "size": 1.15 },
+                "eyes": { "size": 1.25, "spacing": 0.95 },
+                "nose": { "size": 0.9 },
+                "mouth": { "width": 0.8 }
+            }
+        },
+        {
+            "id": "mature",
+            "name": "成熟感",
+            "description": "棱角分明、眼神深邃",
+            "config": {
+                "face": { "size": 1.0 },
+                "eyes": { "size": 0.9, "spacing": 1.1 },
+                "nose": { "size": 1.1 },
+                "mouth": { "width": 1.0 }
+            }
+        },
+        {
+            "id": "cute",
+            "name": "可爱系",
+            "description": "大眼、圆脸、萌系",
+            "config": {
+                "face": { "size": 1.25 },
+                "eyes": { "size": 1.4, "spacing": 0.85 },
+                "nose": { "size": 0.8 },
+                "mouth": { "width": 1.2 }
+            }
+        },
+        {
+            "id": "cool",
+            "name": "冷艳系",
+            "description": "细长眼、尖下巴",
+            "config": {
+                "face": { "size": 0.95 },
+                "eyes": { "size": 0.8, "spacing": 1.2 },
+                "nose": { "size": 1.0 },
+                "mouth": { "width": 0.7 }
+            }
+        }
+    ],
+    "textKeywords": {
+        "少年": "young",
+        "成熟": "mature",
+        "可爱": "cute",
+        "冷酷": "cool",
+        "萌": "cute",
+        "帅气": "cool"
+    }
+}
