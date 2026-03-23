@@ -8,147 +8,105 @@
 </head>
 <body>
     <div class="app">
-        <!-- ========== 左侧：主舞台区 ========== -->
+        <!-- ========== 左侧：主舞台 ========== -->
         <div class="stage">
-            <div class="stage-content">
-                <!-- 状态块 - 左上 -->
-                <div class="stage-status">
-                    <div class="status-item">
-                        <span class="status-dot active"></span>
-                        <span>模型就绪</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-tag">v1.3</span>
-                        <span>Cyber Studio</span>
-                    </div>
-                </div>
-                
-                <!-- 3D Canvas -->
-                <div id="canvas-container">
-                    <div class="loading" id="loading">初始化中...</div>
-                </div>
-                
-                <!-- 底部提示 -->
-                <div class="stage-hints">
-                    <span>✦ Drag to rotate</span>
-                    <span>✦ Scroll to zoom</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== 右侧：控制台 ========== -->
-        <div class="console">
-            <!-- 控制台头部 -->
-            <div class="console-header">
-                <div class="console-title">
+            <!-- 舞台状态块 -->
+            <div class="stage-status">
+                <div class="status-brand">
                     <h1>3D Hub</h1>
-                    <span class="console-subtitle">AI CHARACTER CREATION STUDIO</span>
+                    <span class="status-mode">AI Character Studio</span>
                 </div>
-                <div class="console-mode">
-                    <span class="mode-badge">创作模式</span>
-                </div>
-            </div>
-            
-            <!-- 工作流1: 角色描述 -->
-            <div class="console-section">
-                <div class="section-label">
-                    <span class="section-num">01</span>
-                    <span>角色描述</span>
-                </div>
-                <div class="prompt-area">
-                    <textarea id="characterPrompt" placeholder="描述你的角色，如：少年感、银发、冷酷五官..."></textarea>
-                    <button class="btn-primary" id="generateBtn">
-                        <span>✨</span> 应用描述
-                    </button>
+                <div class="status-info">
+                    <span class="status-dot active"></span>
+                    <span>Ready</span>
                 </div>
             </div>
             
-            <!-- 工作流2: 风格预设 -->
-            <div class="console-section">
-                <div class="section-label">
-                    <span class="section-num">02</span>
-                    <span>快速风格</span>
-                </div>
-                <div class="presets-grid">
-                    <button class="preset-btn" data-preset="young">少年感</button>
-                    <button class="preset-btn" data-preset="mature">成熟感</button>
-                    <button class="preset-btn" data-preset="cute">可爱系</button>
-                    <button class="preset-btn" data-preset="cool">冷艳系</button>
-                </div>
+            <!-- 3D Canvas -->
+            <div class="stage-canvas" id="canvas-container">
+                <div class="loading" id="loading">初始化中...</div>
             </div>
             
-            <!-- 工作流3: 参数调节 -->
-            <div class="console-section controls-section">
-                <div class="section-label">
-                    <span class="section-num">03</span>
-                    <span>细节调节</span>
+            <!-- 舞台底部提示 -->
+            <div class="stage-footer">
+                <span>✦ Drag to rotate</span>
+                <span class="divider">|</span>
+                <span>✦ Scroll to zoom</span>
+            </div>
+            
+            <!-- ========== 悬浮控制台（覆盖在舞台上）========== -->
+            <div class="floating-console">
+                <!-- 控制台头部 -->
+                <div class="console-head">
+                    <span class="section-label">CREATE</span>
                 </div>
                 
-                <div class="control-group">
-                    <div class="group-title">👁 眼部</div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span>眼睛大小</span>
-                            <span class="slider-value">1.0x</span>
-                        </div>
-                        <input type="range" id="eyeSize" min="0.5" max="2.5" step="0.1" value="1.0">
+                <!-- 1. 描述输入 -->
+                <div class="console-block">
+                    <div class="block-label">
+                        <span class="num">01</span>
+                        <span>描述</span>
                     </div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span>眼睛间距</span>
-                            <span class="slider-value">1.0x</span>
-                        </div>
-                        <input type="range" id="eyeSpacing" min="0.5" max="1.5" step="0.1" value="1.0">
+                    <textarea id="characterPrompt" placeholder="描述你的角色，如：少年感，银发..."></textarea>
+                    <button class="btn-primary" id="generateBtn">✨ 应用描述</button>
+                </div>
+                
+                <!-- 2. 风格预设 -->
+                <div class="console-block">
+                    <div class="block-label">
+                        <span class="num">02</span>
+                        <span>风格</span>
+                    </div>
+                    <div class="preset-row">
+                        <button class="preset-btn" data-preset="young">少年感</button>
+                        <button class="preset-btn" data-preset="mature">成熟感</button>
+                        <button class="preset-btn" data-preset="cute">可爱</button>
+                        <button class="preset-btn" data-preset="cool">冷艳</button>
                     </div>
                 </div>
                 
-                <div class="control-group">
-                    <div class="group-title">👃 鼻部</div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span>鼻子大小</span>
-                            <span class="slider-value">1.0x</span>
+                <!-- 3. 细节调节 -->
+                <div class="console-block sliders-block">
+                    <div class="block-label">
+                        <span class="num">03</span>
+                        <span>调节</span>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-item">
+                            <span>眼睛</span>
+                            <input type="range" id="eyeSize" min="0.5" max="2.5" step="0.1" value="1.0">
                         </div>
-                        <input type="range" id="noseSize" min="0.5" max="2.0" step="0.1" value="1.0">
+                        <div class="slider-item">
+                            <span>间距</span>
+                            <input type="range" id="eyeSpacing" min="0.5" max="1.5" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-item">
+                            <span>鼻子</span>
+                            <input type="range" id="noseSize" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                        <div class="slider-item">
+                            <span>嘴巴</span>
+                            <input type="range" id="mouthWidth" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-item">
+                            <span>头部</span>
+                            <input type="range" id="headSize" min="0.8" max="1.5" step="0.1" value="1.0">
+                        </div>
                     </div>
                 </div>
                 
-                <div class="control-group">
-                    <div class="group-title">👄 嘴部</div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span>嘴巴宽度</span>
-                            <span class="slider-value">1.0x</span>
-                        </div>
-                        <input type="range" id="mouthWidth" min="0.5" max="2.0" step="0.1" value="1.0">
-                    </div>
+                <!-- 4. 操作按钮 -->
+                <div class="console-actions">
+                    <button class="btn-action" id="saveBtn">💾 保存</button>
+                    <button class="btn-action secondary" id="resetBtn">🔄 重置</button>
                 </div>
-                
-                <div class="control-group">
-                    <div class="group-title">🧑 轮廓</div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span>头部大小</span>
-                            <span class="slider-value">1.0x</span>
-                        </div>
-                        <input type="range" id="headSize" min="0.8" max="1.5" step="0.1" value="1.0">
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 工作流4: 操作 -->
-            <div class="console-actions">
-                <button class="btn-action" id="saveBtn">
-                    <span>💾</span> 保存配置
-                </button>
-                <button class="btn-action secondary" id="resetBtn">
-                    <span>🔄</span> 重置
-                </button>
-            </div>
-            
-            <!-- 底部版权 -->
-            <div class="console-footer">
-                <span>3D Hub © 2026</span>
             </div>
         </div>
     </div>
