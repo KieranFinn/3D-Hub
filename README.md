@@ -214,6 +214,43 @@ Recent focus areas include:
 
 ---
 
+## Next Steps (2026-03-25)
+
+### Goal: Complete Text-to-Image Guidance System
+
+**Problem Statement:**
+The core challenge of 3D character generation from images is achieving **consistency** — generating multiple views of the same character (front, back, side, 45°, etc.) while maintaining the same identity, features, and style.
+
+**Key Challenge:**
+Current image generation models (like MiniMax image-01) are pure text-to-image. They generate each image independently without character memory. Reference images only influence "style," not "character identity."
+
+**Research Direction:**
+1. **Character Consistency Methods**
+   - Reference image + consistent prompt structure for multi-view generation
+   - Character LoRA / ID training for dedicated character models
+   - Specialized multi-view generation models (e.g., ShiLi纪's approach)
+
+2. **Prompt Engineering for Pixel Art Characters**
+   - Locking down: hair color, eye style, build, clothing, accessories
+   - Varying only: camera angle, pose, lighting
+   - Establishing a reusable prompt template
+
+3. **Practical Workflow**
+   - User provides or selects a reference character image
+   - System generates multiple standardized views automatically
+   - Views fed into 3D model reconstruction pipeline
+
+**Success Criteria:**
+- Given one reference image, generate 6 standardized character views (front, back, left, right, left-front 45°, right-front 45°)
+- All views share consistent: identity, hair, eyes, build, clothing style, color palette
+- Pixel art style maintained across all views
+
+**Files to Reference:**
+- `docs/VISUAL_DESIGN.md` — visual direction
+- `docs/ARCHITECTURE.md` — module architecture
+
+---
+
 ## Summary
 
 3D Hub is being designed as a natural-language-first 3D character creation studio.
