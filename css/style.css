@@ -55,15 +55,87 @@ body {
     background: radial-gradient(ellipse at 30% 20%, #0a0f18 0%, #030508 100%);
 }
 
-/* 网格 */
+/* 网格 — 已移除，替换为深度纵线 */
 .bg-grid {
     position: absolute;
     inset: 0;
+    /* 远处细线：营造空间深度消失感，10% 透明度 */
     background-image: 
         linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
-    background-size: 50px 50px;
-    mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 70%);
+    background-size: 80px 80px;
+    /* 随距离衰减，只在边缘留痕迹 */
+    mask-image: 
+        radial-gradient(ellipse 80% 70% at 50% 100%, black 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 50% 0%, transparent 0%, transparent 100%);
+    opacity: 0.5;
+}
+
+/* 深层渐变 — 空间地平线 */
+.bg-depth-line {
+    position: absolute;
+    bottom: 30%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0, 240, 255, 0.12) 20%,
+        rgba(180, 74, 255, 0.15) 50%,
+        rgba(0, 240, 255, 0.12) 80%,
+        transparent 100%);
+    filter: blur(2px);
+}
+
+/* 深层结构剪影 — 模拟远处建筑/山峦 */
+.bg-silhouette {
+    position: absolute;
+    bottom: 29%;
+    left: 0;
+    right: 0;
+    height: 140px;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* 剪影山形 — 左 */
+.bg-silhouette::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -2%;
+    width: 35%;
+    height: 80px;
+    background: 
+        /* 山形1 */
+        radial-gradient(ellipse 60% 100% at 30% 100%, rgba(8, 14, 30, 0.95) 60%, transparent 70%),
+        /* 山形2 */
+        radial-gradient(ellipse 80% 60% at 70% 100%, rgba(6, 10, 22, 0.9) 55%, transparent 70%),
+        /* 山形3 */
+        radial-gradient(ellipse 50% 80% at 50% 100%, rgba(5, 9, 20, 0.85) 50%, transparent 65%);
+    filter: blur(3px);
+}
+
+/* 剪影山形 — 右 */
+.bg-silhouette::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -2%;
+    width: 40%;
+    height: 100px;
+    background: 
+        radial-gradient(ellipse 70% 100% at 40% 100%, rgba(10, 12, 28, 0.95) 60%, transparent 70%),
+        radial-gradient(ellipse 90% 60% at 60% 100%, rgba(7, 11, 25, 0.9) 55%, transparent 70%);
+    filter: blur(4px);
+}
+
+/* 近景光晕 */
+.bg-ambient-haze {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 100% 60% at 50% 80%, rgba(0, 240, 255, 0.04) 0%, transparent 60%);
+    pointer-events: none;
 }
 
 /* 扫描线 */
@@ -85,30 +157,34 @@ body {
     position: absolute;
     inset: 0;
     background: 
-        radial-gradient(ellipse at 10% 90%, rgba(180, 74, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(ellipse at 90% 10%, rgba(0, 240, 255, 0.06) 0%, transparent 40%);
+        /* 左下角紫光 — 地面反光感 */
+        radial-gradient(ellipse at 15% 85%, rgba(180, 74, 255, 0.12) 0%, transparent 45%),
+        /* 右上角色光 */
+        radial-gradient(ellipse at 85% 15%, rgba(0, 240, 255, 0.10) 0%, transparent 45%),
+        /* 中央偏下 — 舞台脚光 */
+        radial-gradient(ellipse at 50% 75%, rgba(0, 240, 255, 0.06) 0%, transparent 35%);
 }
 
 /* 角落光 */
 .bg-corner-light {
     position: absolute;
-    width: 400px;
-    height: 400px;
+    width: 600px;
+    height: 600px;
     border-radius: 50%;
-    filter: blur(100px);
+    filter: blur(150px);
     pointer-events: none;
 }
 
 .bg-corner-light.top-left {
-    top: -200px;
-    left: -200px;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, transparent 70%);
+    top: -300px;
+    left: -300px;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%);
 }
 
 .bg-corner-light.bottom-right {
-    bottom: -200px;
-    right: -200px;
-    background: radial-gradient(circle, rgba(180, 74, 255, 0.12) 0%, transparent 70%);
+    bottom: -300px;
+    right: -300px;
+    background: radial-gradient(circle, rgba(180, 74, 255, 0.10) 0%, transparent 70%);
 }
 
 /* ===== 顶部 Header ===== */
