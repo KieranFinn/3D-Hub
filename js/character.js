@@ -1,178 +1,264 @@
 /**
  * Character - 3D 角色模型管理
- * 负责创建和更新角色网格
+ * 优先加载 GLB 模型，fallback 到基础几何体
  */
 
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { getCharacterState, subscribeToChanges } from './state.js';
 
 let characterGroup;
-let meshes = {};
+let gltfModel = null;
+let mixer = null;
+let animations = {};
+let currentAction = null;
 let scene;
+let isModelLoaded = false;
+let pendingConfig = null;
 
-// 材质
-const skinMaterial = new THREE.MeshStandardMaterial({ color: 0xffd5c8 });
-const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
-const noseMaterial = new THREE.MeshStandardMaterial({ color: 0xffc8b8 });
-const mouthMaterial = new THREE.MeshStandardMaterial({ color: 0xcc8888 });
-const hairMaterial = new THREE.MeshStandardMaterial({ color: 0x2a1810 });
-const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x4a90d9 });
+// GLB 模型路径
+const MODEL_PATH = './models/robot.glb';
 
 /**
- * 初始化角色
- * @param {THREE.Scene} sceneRef - Three.js 场景引用
+ * 初始化角色（优先加载 GLB，否则用 fallback 几何体）
+ * @param {THREE.Scene} sceneRef
  */
 function initCharacter(sceneRef) {
     scene = sceneRef;
     characterGroup = new THREE.Group();
+    characterGroup.position.set(0, -0.5, 0); // 让模型站在地面上
     scene.add(characterGroup);
-    
-    createHead();
-    createEyes();
-    createNose();
-    createMouth();
-    createBody();
-    createHair();
-    
-    // 订阅状态变化
+
+    loadGLBModel();
     subscribeToChanges(applyCharacterConfig);
 }
 
 /**
- * 创建头部
+ * 加载 GLB 模型
  */
-function createHead() {
-    const headGeom = new THREE.SphereGeometry(0.4, 32, 32);
-    meshes.head = new THREE.Mesh(headGeom, skinMaterial);
-    meshes.head.position.y = 1.2;
-    characterGroup.add(meshes.head);
+function loadGLBModel() {
+    const loader = new GLTFLoader();
+
+    loader.load(
+        MODEL_PATH,
+        (gltf) => {
+            gltfModel = gltf.scene;
+            gltfModel.scale.setScalar(1.2);
+            gltfModel.castShadow = true;
+            gltfModel.receiveShadow = true;
+
+            characterGroup.add(gltfModel);
+            isModelLoaded = true;
+
+            // 动画混合器
+            if (gltf.animations && gltf.animations.length > 0) {
+                mixer = new THREE.AnimationMixer(gltfModel);
+                gltf.animations.forEach((clip) => {
+                    animations[clip.name] = mixer.clipAction(clip);
+                });
+                // 默认播放 Idle
+                playAnimation('Idle');
+            }
+
+            // 应用挂起的配置
+            if (pendingConfig) {
+                applyCharacterConfig(pendingConfig);
+                pendingConfig = null;
+            }
+
+            // 隐藏加载提示
+            const loading = document.getElementById('loading');
+            if (loading) loading.style.display = 'none';
+
+            console.log('GLB model loaded:', MODEL_PATH);
+        },
+        (progress) => {
+            // 加载进度
+            const pct = progress.loaded / (progress.total || 1) * 100;
+            const el = document.getElementById('loading');
+            if (el) el.querySelector('span').textContent = `LOADING... ${Math.round(pct)}%`;
+        },
+        (err) => {
+            console.warn('GLB load failed, using fallback primitives:', err);
+            createFallbackCharacter();
+        }
+    );
 }
 
 /**
- * 创建眼睛
+ * Fallback：简单几何体角色（GLB 加载失败时使用）
  */
-function createEyes() {
-    const eyeGeom = new THREE.SphereGeometry(0.08, 16, 16);
-    
-    meshes.leftEye = new THREE.Mesh(eyeGeom, eyeMaterial);
-    meshes.leftEye.position.set(-0.15, 1.3, 0.32);
-    characterGroup.add(meshes.leftEye);
-    
-    meshes.rightEye = new THREE.Mesh(eyeGeom, eyeMaterial);
-    meshes.rightEye.position.set(0.15, 1.3, 0.32);
-    characterGroup.add(meshes.rightEye);
+function createFallbackCharacter() {
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xffd5c8, roughness: 0.7, metalness: 0.1 });
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+    const noseMat = new THREE.MeshStandardMaterial({ color: 0xffc8b8 });
+    const mouthMat = new THREE.MeshStandardMaterial({ color: 0xcc8888 });
+    const hairMat = new THREE.MeshStandardMaterial({ color: 0x2a1810 });
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4a90d9, roughness: 0.6, metalness: 0.2 });
+
+    const headGeo = new THREE.SphereGeometry(0.4, 32, 32);
+    const head = new THREE.Mesh(headGeo, skinMat);
+    head.position.y = 1.7;
+    head.castShadow = true;
+    characterGroup.add(head);
+
+    const eyeGeo = new THREE.SphereGeometry(0.06, 16, 16);
+    const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+    leftEye.position.set(-0.14, 1.8, 0.32);
+    characterGroup.add(leftEye);
+    const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+    rightEye.position.set(0.14, 1.8, 0.32);
+    characterGroup.add(rightEye);
+
+    const noseGeo = new THREE.ConeGeometry(0.04, 0.1, 8);
+    const nose = new THREE.Mesh(noseGeo, noseMat);
+    nose.position.set(0, 1.7, 0.38);
+    nose.rotation.x = -0.4;
+    characterGroup.add(nose);
+
+    const mouthGeo = new THREE.TorusGeometry(0.06, 0.015, 8, 16, Math.PI);
+    const mouth = new THREE.Mesh(mouthGeo, mouthMat);
+    mouth.position.set(0, 1.58, 0.36);
+    mouth.rotation.x = -0.2;
+    characterGroup.add(mouth);
+
+    const hairGeo = new THREE.SphereGeometry(0.43, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+    const hair = new THREE.Mesh(hairGeo, hairMat);
+    hair.position.y = 1.75;
+    characterGroup.add(hair);
+
+    const bodyGeo = new THREE.CylinderGeometry(0.22, 0.28, 0.9, 16);
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.y = 0.95;
+    body.castShadow = true;
+    characterGroup.add(body);
+
+    const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.7, 8);
+    const leftArm = new THREE.Mesh(armGeo, bodyMat);
+    leftArm.position.set(-0.35, 1.1, 0);
+    leftArm.rotation.z = 0.3;
+    leftArm.castShadow = true;
+    characterGroup.add(leftArm);
+    const rightArm = new THREE.Mesh(armGeo, bodyMat);
+    rightArm.position.set(0.35, 1.1, 0);
+    rightArm.rotation.z = -0.3;
+    rightArm.castShadow = true;
+    characterGroup.add(rightArm);
+
+    const legGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 8);
+    const leftLeg = new THREE.Mesh(legGeo, bodyMat);
+    leftLeg.position.set(-0.12, 0.25, 0);
+    leftLeg.castShadow = true;
+    characterGroup.add(leftLeg);
+    const rightLeg = new THREE.Mesh(legGeo, bodyMat);
+    rightLeg.position.set(0.12, 0.25, 0);
+    rightLeg.castShadow = true;
+    characterGroup.add(rightLeg);
+
+    // 标记为 fallback，等 GLB 加载成功会替换
+    window._fallbackMeshes = { head, leftEye, rightEye, nose, mouth, hair, body, leftArm, rightArm, leftLeg, rightLeg };
+    isModelLoaded = true;
+    pendingConfig = null;
+
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
 }
 
 /**
- * 创建鼻子
+ * 播放动画
+ * @param {string} name - 动画名称
  */
-function createNose() {
-    const noseGeom = new THREE.ConeGeometry(0.05, 0.12, 8);
-    meshes.nose = new THREE.Mesh(noseGeom, noseMaterial);
-    meshes.nose.position.set(0, 1.18, 0.38);
-    meshes.nose.rotation.x = -0.5;
-    characterGroup.add(meshes.nose);
+function playAnimation(name) {
+    if (!mixer) return;
+    const action = animations[name];
+    if (!action) return;
+    if (currentAction && currentAction !== action) {
+        currentAction.fadeOut(0.3);
+    }
+    action.reset().fadeIn(0.3).play();
+    currentAction = action;
 }
 
 /**
- * 创建嘴巴
+ * 更新动画（每帧调用）
+ * @param {number} delta
  */
-function createMouth() {
-    const mouthGeom = new THREE.TorusGeometry(0.08, 0.02, 8, 16, Math.PI);
-    meshes.mouth = new THREE.Mesh(mouthGeom, mouthMaterial);
-    meshes.mouth.position.set(0, 1.05, 0.35);
-    meshes.mouth.rotation.x = -0.2;
-    characterGroup.add(meshes.mouth);
+function updateAnimations(delta) {
+    if (mixer) mixer.update(delta);
 }
 
 /**
- * 创建身体
- */
-function createBody() {
-    const bodyGeom = new THREE.CylinderGeometry(0.25, 0.3, 1, 16);
-    meshes.body = new THREE.Mesh(bodyGeom, bodyMaterial);
-    meshes.body.position.y = 0.3;
-    characterGroup.add(meshes.body);
-}
-
-/**
- * 创建头发（简单半球形）
- */
-function createHair() {
-    const hairGeom = new THREE.SphereGeometry(0.42, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-    meshes.hair = new THREE.Mesh(hairGeom, hairMaterial);
-    meshes.hair.position.y = 1.25;
-    characterGroup.add(meshes.hair);
-}
-
-/**
- * 应用角色配置到网格
- * 这是统一的更新入口
+ * 应用角色配置
  */
 function applyCharacterConfig(config) {
-    if (!config || !meshes.head) return;
-    
-    // 头部
-    if (config.face) {
-        if (config.face.size !== undefined) {
-            meshes.head.scale.setScalar(config.face.size);
-        }
+    if (!isModelLoaded) {
+        pendingConfig = config;
+        return;
     }
-    
-    // 眼睛
-    if (config.eyes) {
-        if (config.eyes.size !== undefined) {
-            const eyeScale = config.eyes.size;
-            meshes.leftEye.scale.setScalar(eyeScale);
-            meshes.rightEye.scale.setScalar(eyeScale);
-        }
-        if (config.eyes.spacing !== undefined) {
-            const spacing = config.eyes.spacing;
-            meshes.leftEye.position.x = -0.15 * spacing;
-            meshes.rightEye.position.x = 0.15 * spacing;
-        }
-        if (config.eyes.color !== undefined) {
-            eyeMaterial.color.set(config.eyes.color);
-        }
+
+    if (!config) return;
+
+    // GLB 模型：通过 scale / rotation / position 调整
+    if (gltfModel) {
+        gltfModel.scale.setScalar(config.scale || 1.2);
     }
-    
-    // 鼻子
-    if (config.nose && config.nose.size !== undefined) {
-        meshes.nose.scale.setScalar(config.nose.size);
-    }
-    
-    // 嘴巴
-    if (config.mouth) {
-        if (config.mouth.width !== undefined) {
-            meshes.mouth.scale.x = config.mouth.width;
+
+    // Fallback 几何体：按字段调整
+    if (window._fallbackMeshes) {
+        const m = window._fallbackMeshes;
+        if (config.face && config.face.size !== undefined) {
+            m.head.scale.setScalar(config.face.size);
         }
-    }
-    
-    // 头发颜色
-    if (config.hair && config.hair.color !== undefined) {
-        hairMaterial.color.set(config.hair.color);
+        if (config.eyes) {
+            if (config.eyes.size !== undefined) {
+                const s = config.eyes.size;
+                m.leftEye.scale.setScalar(s);
+                m.rightEye.scale.setScalar(s);
+            }
+            if (config.eyes.spacing !== undefined) {
+                const sp = config.eyes.spacing;
+                m.leftEye.position.x = -0.14 * sp;
+                m.rightEye.position.x = 0.14 * sp;
+            }
+        }
+        if (config.nose && config.nose.size !== undefined) {
+            m.nose.scale.setScalar(config.nose.size);
+        }
+        if (config.mouth && config.mouth.width !== undefined) {
+            m.mouth.scale.x = config.mouth.width;
+        }
+        if (config.hair && config.hair.color !== undefined) {
+            m.hair.material.color.set(config.hair.color);
+        }
     }
 }
 
 /**
- * 获取角色组（用于外部控制旋转等）
+ * 获取角色组
  */
 function getCharacterGroup() {
     return characterGroup;
 }
 
 /**
- * 根据预设批量应用配置
+ * 获取动画更新函数
  */
-function applyPreset(preset) {
-    if (!preset) return;
-    applyCharacterConfig(preset);
+function getAnimationUpdater() {
+    return updateAnimations;
+}
+
+/**
+ * 切换动画
+ */
+function setAnimation(name) {
+    playAnimation(name);
 }
 
 export {
     initCharacter,
     applyCharacterConfig,
     getCharacterGroup,
-    applyPreset,
-    meshes
+    getAnimationUpdater,
+    setAnimation,
+    playAnimation
 };

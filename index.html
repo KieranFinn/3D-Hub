@@ -23,7 +23,43 @@
             <div class="bg-corner-light bottom-right"></div>
         </div>
         
-        <!-- 顶部 Header -->
+        <!-- 折叠按钮 -->
+        <style>
+        .sidebar-toggle {
+            position: absolute;
+            top: 50%;
+            right: -18px;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 48px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-neon);
+            border-left: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            font-size: 10px;
+            transition: background 0.2s;
+            clip-path: polygon(0 0, 100% 20%, 100% 80%, 0 100%);
+            z-index: 60;
+        }
+        .sidebar-toggle:hover {
+            background: rgba(0, 240, 255, 0.15);
+        }
+        .sidebar-toggle.collapsed {
+            right: 0;
+            clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 80%);
+        }
+        .sidebar-toggle.collapsed .toggle-icon {
+            transform: rotate(180deg);
+        }
+        .control-panel.collapsed {
+            transform: translateX(-100%);
+        }
+        </style>
+
         <header class="top-header">
             <div class="brand-block">
                 <h1 class="brand-title">3D HUB</h1>
@@ -63,6 +99,9 @@
                         <span class="data-value">100%</span>
                     </div>
                 </div>
+                <button class="sidebar-toggle" id="sidebarToggle" title="收起侧边栏">
+                    <span class="toggle-icon">◀</span>
+                </button>
             </aside>
             
             <!-- 中央舞台 -->

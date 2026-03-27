@@ -12,6 +12,7 @@ import { applyCharacterConfig } from './character.js';
 
 // DOM 元素引用
 let promptInput, generateBtn, resetBtn, saveBtn;
+let sidebarCollapsed = false;
 
 /**
  * 初始化控件
@@ -27,12 +28,43 @@ function initControls() {
     bindSliderEvents();
     bindButtonEvents();
     bindPresetEvents();
+    bindSidebarToggle();
     
     // 订阅状态变化，同步 UI
     subscribeToChanges(syncUIFromState);
     
     // 初始化 UI
     syncUIFromState(getCharacterRef());
+}
+
+/**
+ * 绑定侧边栏折叠
+ */
+function bindSidebarToggle() {
+    const toggle = document.getElementById('sidebarToggle');
+    if (!toggle) return;
+    
+    toggle.addEventListener('click', () => {
+        sidebarCollapsed = !sidebarCollapsed;
+        
+        const card = document.querySelector('.status-card');
+        const panel = document.querySelector('.control-panel');
+        const hint = document.querySelector('.hint-card');
+        
+        if (sidebarCollapsed) {
+            toggle.classList.add('collapsed');
+            toggle.querySelector('.toggle-icon').textContent = '▶';
+            if (card) card.classList.add('collapsed');
+            if (panel) panel.classList.add('collapsed');
+            if (hint) hint.classList.add('collapsed');
+        } else {
+            toggle.classList.remove('collapsed');
+            toggle.querySelector('.toggle-icon').textContent = '◀';
+            if (card) card.classList.remove('collapsed');
+            if (panel) panel.classList.remove('collapsed');
+            if (hint) hint.classList.remove('collapsed');
+        }
+    });
 }
 
 /**

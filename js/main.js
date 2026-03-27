@@ -2,8 +2,8 @@
  * Main - 3D Hub 入口文件
  */
 
-import { initRenderer, startRenderLoop, getScene, hideLoading } from './renderer.js';
-import { initCharacter } from './character.js';
+import { initRenderer, startRenderLoop, getScene, setAnimUpdater, hideLoading } from './renderer.js';
+import { initCharacter, getAnimationUpdater } from './character.js';
 import { initControls } from './controls.js';
 
 /**
@@ -22,8 +22,12 @@ function init() {
     // 初始化渲染器
     const scene = initRenderer(container);
     
-    // 初始化角色
+    // 初始化角色（会触发 GLB 加载）
     initCharacter(scene);
+    
+    // 注册动画更新器
+    const animUpdater = getAnimationUpdater();
+    if (animUpdater) setAnimUpdater(animUpdater);
     
     // 初始化控件
     initControls();

@@ -225,28 +225,30 @@ function onResize() {
 /**
  * 开始渲染循环
  */
+let _animUpdater = null;
+let _clock = new THREE.Clock();
+
 function startRenderLoop() {
     let time = 0;
     function animate() {
         animFrameId = requestAnimationFrame(animate);
         time += 0.005;
-        
+        const delta = _clock.getDelta();
+
+        // 驱动 GLB 模型动画
+        if (_animUpdater) _animUpdater(delta);
+
         // 粒子漂浮动画 — 营造空间深度感
         if (particles) {
             const positions = particles.geometry.attributes.position.array;
             const count = positions.length / 3;
             for (let i = 0; i < count; i++) {
-                // 每层粒子漂浮速度不同：远的慢，近的快
                 const y = positions[i * 3 + 1];
                 const speed = y > 2 ? 0.003 : y > 0.5 ? 0.0015 : 0.001;
                 positions[i * 3 + 1] += Math.sin(time * (0.5 + i * 0.01) + i) * speed;
-                
-                // 横向轻微漂移
                 positions[i * 3] += Math.cos(time * 0.3 + i * 0.05) * 0.0005;
             }
             particles.geometry.attributes.position.needsUpdate = true;
-            
-            // 粒子呼吸效果：透明度随时间微微变化
             particles.material.opacity = 0.4 + Math.sin(time * 2) * 0.15;
         }
         
@@ -254,6 +256,13 @@ function startRenderLoop() {
         renderer.render(scene, camera);
     }
     animate();
+}
+
+/**
+ * 注册动画更新器（由 main.js 调用）
+ */
+function setAnimUpdater(fn) {
+    _animUpdater = fn;
 }
 
 /**
@@ -301,5 +310,6 @@ export {
     getCamera,
     getRenderer,
     getControls,
-    hideLoading
+    hideLoading,
+    setAnimUpdater
 };
