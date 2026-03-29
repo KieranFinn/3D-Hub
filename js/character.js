@@ -14,9 +14,6 @@ let scene;
 let isModelLoaded = false;
 let pendingConfig = null;
 
-// GLB 模型绝对路径（file:// 协议）
-const MODEL_FILE = '/Users/kieransworkstation/.openclaw/workspace/3D-Hub/models/robot.glb';
-
 /**
  * 初始化角色
  */
@@ -26,38 +23,24 @@ function initCharacter(sceneRef) {
     characterGroup.position.set(0, -0.5, 0);
     scene.add(characterGroup);
 
-    loadGLBFromFile();
+    loadGLBFromURL('./models/robot.glb');
 }
 
 /**
- * 用 XMLHttpRequest 拉取本地模型，再用 GLTFLoader 解析
+ * 用 fetch 加载相对路径模型，再用 GLTFLoader 解析
+ * 兼容本地服务器（Live Server）和线上部署
  */
-function loadGLBFromFile() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', `file://${MODEL_FILE}`, true);
-    xhr.responseType = 'arraybuffer';
-
-    xhr.onload = function () {
-        if (xhr.status === 0 || xhr.status === 200) {
-            try {
-                const arrayBuffer = xhr.response;
-                parseGLB(arrayBuffer);
-            } catch (e) {
-                console.warn('GLB parse failed, using fallback:', e);
-                createFallbackCharacter();
-            }
-        } else {
-            console.warn('GLB load failed, using fallback:', xhr.status, xhr.statusText);
+function loadGLBFromURL(url) {
+    fetch(url)
+        .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.arrayBuffer();
+        })
+        .then((buf) => parseGLB(buf))
+        .catch((e) => {
+            console.warn('GLB load failed, using fallback:', e);
             createFallbackCharacter();
-        }
-    };
-
-    xhr.onerror = function (e) {
-        console.warn('GLB load error, using fallback:', e);
-        createFallbackCharacter();
-    };
-
-    xhr.send();
+        });
 }
 
 /**
@@ -120,7 +103,7 @@ function onGLBLoaded(gltf) {
     const loading = document.getElementById('loading');
     if (loading) loading.style.display = 'none';
 
-    console.log('GLB model loaded successfully from:', MODEL_FILE);
+    console.log('GLB model loaded successfully from:', './models/robot.glb');
 }
 
 /**
